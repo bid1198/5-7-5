@@ -3,26 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5-7-5! Jackpot</title>
-    
+    <title>5-7-5 Generator</title>
     <style>
+        body {
+            position: relative;
+            overflow: hidden;
+        }
+
         #haiku-container {
             max-height: 700px;
             overflow-y: auto;
             font-family: Arial, sans-serif;
             scroll-behavior: smooth;
+            position: relative;
+            z-index: 1;
         }
+
         .haiku {
             margin: 10px 0;
             opacity: 0;
             transition: opacity 1s ease-in-out;
         }
+
         .haiku.fade-in {
             opacity: 1;
         }
+
         .haiku.fade-out {
             opacity: 0;
         }
+
         #info-button {
             position: fixed;
             bottom: 10px;
@@ -36,6 +46,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             z-index: 1000;
         }
+
         #info-modal {
             display: none;
             position: fixed;
@@ -46,10 +57,13 @@
             border: 2px solid black;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
         }
+
         #info-modal p {
             margin: 0;
         }
+
         #close-button {
             margin-top: 10px;
             padding: 5px 10px;
@@ -57,10 +71,32 @@
             border: none;
             cursor: pointer;
         }
+
+        .floating-number {
+    position: absolute;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.2);
+    opacity: 0;
+}
+
+@keyframes float {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-100px) scale(1.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-200px) scale(2);
+    }
+}
     </style>
 </head>
 <body>
-    <h1>5-7-5! Jackpot</h1>
+    <h1>5 - 7 - 5</h1>
     <div id="haiku-container"></div>
     <button id="info-button">Apa Ini?</button>
 
@@ -73,7 +109,7 @@
         const objects = ["embun", "burung", "surya", "udara", "sungai", "danau", "gunung", "langit", "kumbang", "melati", "mentari", "awan", "mega", "pohon", "ladang", "pantai", "debu", "warna", "jingga", "biru", "hitam", "bulan", "bintang", "kekunang", "kabut", "kelelawar", "bayangan"];
         const actions = ["mengambang", "menari", "bernyanyi", "berbisik", "mengalir", "merayap", "menyala", "memanas", "menanti", "menyengat", "membakar", "menggulung", "menghampar", "meredup", "memudar", "berkilau", "melayang", "menghilang", "tertanam", "berdesir", "menyelimuti", "menggelandang", "mengumbar", "menyelinap", "mengalun", "meluas"];
         const moods = ["lirih", "pelan", "perlahan", "merdu", "semangat", "cerah", "gairah", "terik", "letih", "lelah", "lesu", "lemas", "marah", "gerah", "gelisah", "bosan", "tenang", "syahdu", "damai", "resah", "hening", "sepi", "magis", "gulita", "padam", "mati", "hidup", "hanyut"];
-        const textures = ["lembut", "lemas", "halus", "basah", "lembab", "kering", "panas", "gersang", "berpasir", "berkerut", "retak", "hangat", "redup", "matang", "tersapu", "kendur", "luntur", "bayang", "dingin", "beku", "samar", "remang", "gigil"];
+        const textures = ["lembut", "lemas", "halus", "basah", "lembab", "kering", "panas", "gersang", "berpasir", "berkerut", "retak", "hangat", "redup", "matang", "tersapu", "kendur", "luntur", "bayang", "dingin", "beku", "samar", "remang", "gigil", "wangi", "harum", "aroma"];
         const conjunctions = ["dan", "lalu", "lantas"];
         const intrans = ["nya", "lah", "kan"];
 
@@ -149,6 +185,31 @@
                 haikuElement.classList.add('fade-in');
             }, 10); 
         }
+
+        function generateFloatingNumber() {
+    const numberElement = document.createElement('div');
+    numberElement.className = 'floating-number';
+    numberElement.textContent = Math.random() > 0.5 ? '5' : '7';
+
+    numberElement.style.left = `${Math.random() * 100}%`;
+    numberElement.style.top = `${Math.random() * 100}%`;
+
+    const duration = 4 + Math.random() * 4;
+    numberElement.style.animation = `float ${duration}s ease-in-out infinite`;
+
+    document.body.appendChild(numberElement);
+
+    setTimeout(() => {
+        document.body.removeChild(numberElement);
+    }, duration * 1000); 
+}
+
+function startFloatingNumbers() {
+    generateFloatingNumber();
+    setTimeout(startFloatingNumbers, Math.random() * 1000);
+}
+
+startFloatingNumbers();
 
         setInterval(updateHaikuDisplay, 4000);
 
