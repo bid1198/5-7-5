@@ -4,60 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>5-7-5 Generator</title>
-    <!-- 
-    MIT License
-
-Copyright ©2024 | Bangkit I. D.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
     <style>
         body {
             position: relative;
             overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
         }
-
         #haiku-container {
             max-height: 700px;
             overflow-y: auto;
-            font-family: Arial, sans-serif;
             scroll-behavior: smooth;
             position: relative;
             z-index: 1;
+            padding-bottom: 60px; 
         }
-
         .haiku {
             margin: 10px 0;
             opacity: 0;
             transition: opacity 1s ease-in-out;
+            cursor: text; 
         }
-
         .haiku.fade-in {
             opacity: 1;
         }
-
         .haiku.fade-out {
             opacity: 0;
         }
-
-        #info-button {
+        #controls {
             position: fixed;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            gap: 10px; 
+        }
+        .control-button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            transition: background-color 0.3s ease;
         }
-
+        .control-button:hover {
+            background-color: #555;
+        }
         #info-modal {
             display: none;
             position: fixed;
@@ -70,65 +66,84 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1001;
         }
-
         #info-modal p {
             margin: 0;
         }
-
         #close-button {
             margin-top: 10px;
             padding: 5px 10px;
-            background-color: #ddd;
+            background-color: #333;
+            color: #fff;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-
-        .floating-number {
-    position: absolute;
-    font-size: 24px;
-    color: rgba(0, 0, 0, 0.2);
-    opacity: 0;
+        #close-button:hover {
+            background-color: #555;
+        }
+        #edit-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
 }
-
-@keyframes float {
-    0% {
-        opacity: 0;
-        transform: translateY(0) scale(0.5);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(-100px) scale(1.5);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-200px) scale(2);
-    }
-}
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
     </style>
 </head>
 <body>
+    <canvas id="background-canvas"></canvas>
     <h1>5 - 7 - 5</h1>
     <div id="haiku-container"></div>
-    <button id="info-button">Apa Ini?</button>
+    <div id="controls">
+        <button id="info-button" class="control-button">?</button>
+        <button id="play-button" class="control-button">Skibidi</button>
+        <button id="stop-button" class="control-button">Sigma</button>
+    </div>
+    
+    <div id="edit-modal" style="display: none;">
+    <h2>:)</h2>
+    <p>Jadi, bagaimana mestinya agar teks ini jadi puisi?</p>
+    <textarea id="edit-textarea" rows="10" cols="30"></textarea><br>
+    <button id="copy-button" class="control-button">Jiplak</button>
+    <button id="cancel-button" class="control-button">Yeet!</button>
+</div>
 
+    
     <div id="info-modal">
-        <p>Hanya mesin yang tergila-gila pada 5-7-5. Dalam mimpinya ia meretas sebuah mesin slot, sehingga 5-7-5 adalah satu-satunya jackpot.</p>
+        <p>Skibidi: Mengajak kami berlari.<br>Sigma: Membuat kami berhenti.<br>Klik teks: Membuktikan kepenyairan diri.</p>
         <button id="close-button">Yeet!</button>
     </div>
-
+    
     <script>
-        const objects = ["embun", "burung", "surya", "udara", "sungai", "danau", "gunung", "langit", "kumbang", "melati", "mentari", "awan", "mega", "pohon", "ladang", "pantai", "debu", "warna", "jingga", "biru", "hitam", "bulan", "bintang", "kekunang", "kabut", "kelelawar", "bayangan"];
+        const objects = ["embun", "burung", "surya", "udara", "sungai", "danau", "gunung", "langit", "kumbang", "melati", "mentari", "awan", "mega", "pohon", "ladang", "pantai", "debu", "warna", "jingga", "biru", "hitam", "bulan", "bintang", "kekunang", "kabut", "kelelawar", "bayangan", "angkasa"];
         const actions = ["mengambang", "menari", "bernyanyi", "berbisik", "mengalir", "merayap", "menyala", "memanas", "menanti", "menyengat", "membakar", "menggulung", "menghampar", "meredup", "memudar", "berkilau", "melayang", "menghilang", "tertanam", "berdesir", "menyelimuti", "menggelandang", "mengumbar", "menyelinap", "mengalun", "meluas"];
-        const moods = ["lirih", "pelan", "perlahan", "merdu", "semangat", "cerah", "gairah", "terik", "letih", "lelah", "lesu", "lemas", "marah", "gerah", "gelisah", "bosan", "tenang", "syahdu", "damai", "resah", "hening", "sepi", "magis", "gulita", "padam", "mati", "hidup", "hanyut"];
+        const moods = ["lirih", "pelan", "perlahan", "merdu", "semangat", "cerah", "gairah", "terik", "letih", "lelah", "lesu", "lemas", "marah", "gerah", "gelisah", "bosan", "tenang", "syahdu", "damai", "resah", "hening", "sepi", "magis", "gulita", "padam", "mati", "hidup", "hanyut", "melantun", "bernyanyi", "riang", "murung", "pucat", "pasi"];
         const textures = ["lembut", "lemas", "halus", "basah", "lembab", "kering", "panas", "gersang", "berpasir", "berkerut", "retak", "hangat", "redup", "matang", "tersapu", "kendur", "luntur", "bayang", "dingin", "beku", "samar", "remang", "gigil", "wangi", "harum", "aroma"];
-        const conjunctions = ["dan", "lalu", "lantas"];
-        const intrans = ["nya", "lah", "kan"];
+        const conjunctions = ["ada", "maka", "lalu", "lantas", "pada", "kala"];
+        const suffixs = ["nya", "kan", "lah"];
 
         const maxHaikus = 7; 
         let haikuArray = [];
+        let haikuInterval;
 
         function countSyllables(word) {
-            return (word.match(/[aiueo]/gi) || []).length;
+            word = word.replace(/au|ai/gi, '*');
+            return (word.match(/[aiueo*]/gi) || []).length;
         }
 
         function getRandomElement(array) {
@@ -152,7 +167,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
             if (totalSyllables < targetSyllables) {
                 if (targetSyllables - totalSyllables === 1) {
-                    line[line.length - 1] += getRandomElement(intrans);
+                    let suffix = getRandomElement(suffixs);
+                    let position = Math.floor(Math.random() * line.length);
+                    line[position] += suffix;
                 } else if (targetSyllables - totalSyllables === 2) {
                     line.unshift(getRandomElement(conjunctions));
                 }
@@ -169,68 +186,127 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             ];
         }
 
-        function updateHaikuDisplay() {
-            let haikuContainer = document.getElementById("haiku-container");
+        let currentEditingHaiku = null;
 
-            if (haikuArray.length >= maxHaikus) {
-                let oldHaiku = haikuContainer.querySelector('.haiku');
-                oldHaiku.classList.add('fade-out');
-                setTimeout(() => {
-                    haikuArray.shift();
-                    haikuContainer.removeChild(oldHaiku);
-                }, 1000); 
+function showEditModal(haikuElement) {
+    currentEditingHaiku = haikuElement;
+    const lines = haikuElement.innerText.split('\n');
+    document.getElementById('edit-textarea').value = lines.join('\n');
+    document.getElementById('edit-modal').style.display = 'block';
+}
+
+document.getElementById('copy-button').addEventListener('click', function () {
+    if (currentEditingHaiku) {
+        const haikuText = document.getElementById('edit-textarea').value;
+        navigator.clipboard.writeText(haikuText)
+            .then(() => {
+                alert('Penjiplakan sukses!');
+                document.getElementById('edit-modal').style.display = 'none';
+                currentEditingHaiku = null;
+            })
+            .catch(err => {
+                console.error('Gagal menjiplak :(', err);
+            });
+    }
+});
+
+document.getElementById('cancel-button').addEventListener('click', function () {
+    document.getElementById('edit-modal').style.display = 'none';
+    currentEditingHaiku = null;
+});
+
+function updateHaikuDisplay() {
+    let haikuContainer = document.getElementById("haiku-container");
+
+    if (haikuArray.length >= maxHaikus) {
+        let oldHaiku = haikuContainer.querySelector('.haiku');
+        oldHaiku.classList.add('fade-out');
+        setTimeout(() => {
+            haikuArray.shift();
+            haikuContainer.removeChild(oldHaiku);
+        }, 1000);
+    }
+
+    let newHaiku = generateHaiku().map(line => `<div>${line}</div>`).join("");
+    let haikuElement = document.createElement("div");
+    haikuElement.classList.add("haiku");
+    haikuElement.innerHTML = newHaiku;
+    haikuElement.addEventListener('click', () => showEditModal(haikuElement));
+    haikuContainer.appendChild(haikuElement);
+
+    setTimeout(() => haikuElement.classList.add("fade-in"), 100);
+
+    haikuArray.push(newHaiku);
+}
+
+        document.getElementById("play-button").addEventListener("click", function () {
+            if (!haikuInterval) {
+                haikuInterval = setInterval(updateHaikuDisplay, 3000);
             }
+        });
 
-            let newHaiku = generateHaiku();
-            haikuArray.push(newHaiku);
+        document.getElementById("stop-button").addEventListener("click", function () {
+            clearInterval(haikuInterval);
+            haikuInterval = null;
+        });
 
-            let haikuElement = document.createElement('div');
-            haikuElement.className = 'haiku';
-            haikuElement.innerHTML = newHaiku.join('<br>');
+        document.getElementById("info-button").addEventListener("click", function () {
+            document.getElementById("info-modal").style.display = "block";
+        });
 
-            haikuContainer.appendChild(haikuElement);
+        document.getElementById("close-button").addEventListener("click", function () {
+            document.getElementById("info-modal").style.display = "none";
+        });
 
-            haikuContainer.scrollTop = haikuContainer.scrollHeight;
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+        let numbers = [];
 
-            setTimeout(() => {
-                haikuElement.classList.add('fade-in');
-            }, 10); 
+        function createNumber() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const size = Math.random() * 50 + 50;
+            const speed = Math.random() * 1 + 0.5;
+            const text = Math.random() > 0.5 ? '5' : '7';
+            numbers.push({ x, y, size, speed, text });
         }
 
-        function generateFloatingNumber() {
-    const numberElement = document.createElement('div');
-    numberElement.className = 'floating-number';
-    numberElement.textContent = Math.random() > 0.5 ? '5' : '7';
+        function updateNumbers() {
+            numbers.forEach(num => {
+                num.y -= num.speed;
+                if (num.y + num.size < 0) {
+                    num.y = canvas.height + num.size;
+                }
+            });
+        }
 
-    numberElement.style.left = `${Math.random() * 100}%`;
-    numberElement.style.top = `${Math.random() * 100}%`;
+        function drawNumbers() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.01)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const duration = 4 + Math.random() * 4;
-    numberElement.style.animation = `float ${duration}s ease-in-out infinite`;
+            numbers.forEach(num => {
+                ctx.font = `${num.size}px Arial`;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillText(num.text, num.x, num.y);
+            });
+        }
 
-    document.body.appendChild(numberElement);
+        function animateCanvas() {
+            updateNumbers();
+            drawNumbers();
+            requestAnimationFrame(animateCanvas);
+        }
 
-    setTimeout(() => {
-        document.body.removeChild(numberElement);
-    }, duration * 1000); 
-}
-
-function startFloatingNumbers() {
-    generateFloatingNumber();
-    setTimeout(startFloatingNumbers, Math.random() * 1000);
-}
-
-startFloatingNumbers();
-
-        setInterval(updateHaikuDisplay, 4000);
-
-        document.getElementById('info-button').addEventListener('click', () => {
-            document.getElementById('info-modal').style.display = 'block';
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
 
-        document.getElementById('close-button').addEventListener('click', () => {
-            document.getElementById('info-modal').style.display = 'none';
-        });
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        for (let i = 0; i < 14; i++) createNumber();
+        animateCanvas();
     </script>
 </body>
 </html>
