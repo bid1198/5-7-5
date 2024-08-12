@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>5-7-5 Generator</title>
-    <!-- 
+    <!--
 MIT License
 
 Copyright © 2024 Bangkit I. D.
@@ -26,7 +26,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
--->
+ -->
+
     <style>
         body {
             position: relative;
@@ -106,17 +107,17 @@ SOFTWARE.
             background-color: #555;
         }
         #edit-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    border: 2px solid black;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1001;
-}
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 2px solid black;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+        }
         canvas {
             position: fixed;
             top: 0;
@@ -139,13 +140,12 @@ SOFTWARE.
     </div>
     
     <div id="edit-modal" style="display: none;">
-    <h2>:)</h2>
-    <p>Jadi, bagaimana mestinya agar teks ini jadi puisi?</p>
-    <textarea id="edit-textarea" rows="10" cols="30"></textarea><br>
-    <button id="copy-button" class="control-button">Jiplak</button>
-    <button id="cancel-button" class="control-button">Yeet!</button>
-</div>
-
+        <h2>:)</h2>
+        <p>Jadi, bagaimana mestinya agar teks ini jadi puisi?</p>
+        <textarea id="edit-textarea" rows="10" cols="30"></textarea><br>
+        <button id="copy-button" class="control-button">Jiplak</button>
+        <button id="cancel-button" class="control-button">Yeet!</button>
+    </div>
     
     <div id="info-modal">
         <p><b>Skibidi</b>: Mengajak kami berlari.<br><b>Sigma</b>: Membuat kami berhenti.<br><b>Klik teks</b>: Membuktikan kepenyairan diri.</p>
@@ -155,10 +155,9 @@ SOFTWARE.
     <script>
         const objects = ["embun", "burung", "surya", "udara", "sungai", "danau", "gunung", "langit", "kumbang", "melati", "mentari", "awan", "mega", "pohon", "ladang", "pantai", "debu", "warna", "jingga", "biru", "hitam", "bulan", "bintang", "kekunang", "kabut", "kelelawar", "bayangan", "angkasa"];
         const actions = ["mengambang", "menari", "bernyanyi", "berbisik", "mengalir", "merayap", "menyala", "memanas", "menanti", "menyengat", "membakar", "menggulung", "menghampar", "meredup", "memudar", "berkilau", "melayang", "menghilang", "tertanam", "berdesir", "menyelimuti", "menggelandang", "mengumbar", "menyelinap", "mengalun", "meluas"];
-        const moods = ["lirih", "pelan", "perlahan", "merdu", "semangat", "cerah", "gairah", "terik", "letih", "lelah", "lesu", "lemas", "marah", "gerah", "gelisah", "bosan", "tenang", "syahdu", "damai", "resah", "hening", "sepi", "magis", "gulita", "padam", "mati", "hidup", "hanyut", "melantun", "bernyanyi", "riang", "murung", "pucat", "pasi"];
+        const moods = ["lirih", "beku", "pelan", "perlahan", "merdu", "semangat", "cerah", "gairah", "terik", "letih", "lelah", "lesu", "lemas", "marah", "gerah", "gelisah", "bosan", "tenang", "syahdu", "damai", "resah", "hening", "sepi", "magis", "gulita", "padam", "mati", "hidup", "hanyut", "melantun", "bernyanyi", "riang", "murung", "pucat", "pasi"];
         const textures = ["lembut", "lemas", "halus", "basah", "lembab", "kering", "panas", "gersang", "berpasir", "berkerut", "retak", "hangat", "redup", "matang", "tersapu", "kendur", "luntur", "bayang", "dingin", "beku", "samar", "remang", "gigil", "wangi", "harum", "aroma"];
-        const conjunctions = ["ada", "maka", "lalu", "lantas", "pada", "kala"];
-        const suffixs = ["nya", "kan", "lah"];
+        const kigo = ["sakura", "hujan", "kabut", "salju", "purnama", "hilal", "kumbang", "kekupu", "camar", "gagak", "asoka"];
 
         const maxHaikus = 7; 
         let haikuArray = [];
@@ -190,11 +189,11 @@ SOFTWARE.
 
             if (totalSyllables < targetSyllables) {
                 if (targetSyllables - totalSyllables === 1) {
-                    let suffix = getRandomElement(suffixs);
+                    let suffix = getRandomElement(["nya", "kan", "lah"]);
                     let position = Math.floor(Math.random() * line.length);
                     line[position] += suffix;
                 } else if (targetSyllables - totalSyllables === 2) {
-                    line.unshift(getRandomElement(conjunctions));
+                    line.unshift(getRandomElement(["ada", "maka", "lalu", "lantas", "pada", "kala"]));
                 }
             }
 
@@ -202,65 +201,75 @@ SOFTWARE.
         }
 
         function generateHaiku() {
-            return [
-                generateLine(["objects", "actions"], 5),
+            let haiku = [
+                generateLine(["kigo", "actions"], 5),
                 generateLine(["moods", "actions", "textures"], 7),
                 generateLine(["moods", "objects"], 5)
             ];
+
+            haiku = haiku.map(line => {
+                let hasKigo = kigo.some(word => line.includes(word));
+                if (hasKigo) {
+                    return `<span class="kigo">${line}</span>`;
+                }
+                return line;
+            });
+
+            return haiku;
         }
 
         let currentEditingHaiku = null;
 
-function showEditModal(haikuElement) {
-    currentEditingHaiku = haikuElement;
-    const lines = haikuElement.innerText.split('\n');
-    document.getElementById('edit-textarea').value = lines.join('\n');
-    document.getElementById('edit-modal').style.display = 'block';
-}
+        function showEditModal(haikuElement) {
+            currentEditingHaiku = haikuElement;
+            const lines = haikuElement.innerText.split('\n');
+            document.getElementById('edit-textarea').value = lines.join('\n');
+            document.getElementById('edit-modal').style.display = 'block';
+        }
 
-document.getElementById('copy-button').addEventListener('click', function () {
-    if (currentEditingHaiku) {
-        const haikuText = document.getElementById('edit-textarea').value;
-        navigator.clipboard.writeText(haikuText)
-            .then(() => {
-                alert('Penjiplakan sukses!');
-                document.getElementById('edit-modal').style.display = 'none';
-                currentEditingHaiku = null;
-            })
-            .catch(err => {
-                console.error('Gagal menjiplak :(', err);
-            });
-    }
-});
+        document.getElementById('copy-button').addEventListener('click', function () {
+            if (currentEditingHaiku) {
+                const haikuText = document.getElementById('edit-textarea').value;
+                navigator.clipboard.writeText(haikuText)
+                    .then(() => {
+                        alert('Penjiplakan sukses!');
+                        document.getElementById('edit-modal').style.display = 'none';
+                        currentEditingHaiku = null;
+                    })
+                    .catch(err => {
+                        console.error('Gagal menjiplak :(', err);
+                    });
+            }
+        });
 
-document.getElementById('cancel-button').addEventListener('click', function () {
-    document.getElementById('edit-modal').style.display = 'none';
-    currentEditingHaiku = null;
-});
+        document.getElementById('cancel-button').addEventListener('click', function () {
+            document.getElementById('edit-modal').style.display = 'none';
+            currentEditingHaiku = null;
+        });
 
-function updateHaikuDisplay() {
-    let haikuContainer = document.getElementById("haiku-container");
+        function updateHaikuDisplay() {
+            let haikuContainer = document.getElementById("haiku-container");
 
-    if (haikuArray.length >= maxHaikus) {
-        let oldHaiku = haikuContainer.querySelector('.haiku');
-        oldHaiku.classList.add('fade-out');
-        setTimeout(() => {
-            haikuArray.shift();
-            haikuContainer.removeChild(oldHaiku);
-        }, 1000);
-    }
+            if (haikuArray.length >= maxHaikus) {
+                let oldHaiku = haikuContainer.querySelector('.haiku');
+                oldHaiku.classList.add('fade-out');
+                setTimeout(() => {
+                    haikuArray.shift();
+                    haikuContainer.removeChild(oldHaiku);
+                }, 1000);
+            }
 
-    let newHaiku = generateHaiku().map(line => `<div>${line}</div>`).join("");
-    let haikuElement = document.createElement("div");
-    haikuElement.classList.add("haiku");
-    haikuElement.innerHTML = newHaiku;
-    haikuElement.addEventListener('click', () => showEditModal(haikuElement));
-    haikuContainer.appendChild(haikuElement);
+            let newHaiku = generateHaiku().map(line => `<div>${line}</div>`).join("");
+            let haikuElement = document.createElement("div");
+            haikuElement.classList.add("haiku");
+            haikuElement.innerHTML = newHaiku;
+            haikuElement.addEventListener('click', () => showEditModal(haikuElement));
+            haikuContainer.appendChild(haikuElement);
 
-    setTimeout(() => haikuElement.classList.add("fade-in"), 100);
+            setTimeout(() => haikuElement.classList.add("fade-in"), 100);
 
-    haikuArray.push(newHaiku);
-}
+            haikuArray.push(newHaiku);
+        }
 
         document.getElementById("play-button").addEventListener("click", function () {
             if (!haikuInterval) {
